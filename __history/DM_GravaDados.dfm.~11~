@@ -1,6 +1,0 @@
-object DMD_GravaDados: TDMD_GravaDados
-  OnCreate = DataModuleCreate
-  OnDestroy = DataModuleDestroy
-  Height = 200
-  Width = 295
-end
