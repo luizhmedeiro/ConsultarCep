@@ -3,7 +3,7 @@ object FCeps: TFCeps
   Top = 0
   Caption = 'Buscar CEP'
   ClientHeight = 232
-  ClientWidth = 786
+  ClientWidth = 864
   Color = clBtnFace
   DefaultMonitor = dmDesktop
   Font.Charset = DEFAULT_CHARSET
@@ -16,103 +16,163 @@ object FCeps: TFCeps
   OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 15
-  object lblEndereco: TLabel
-    Left = 280
-    Top = 85
-    Width = 3
-    Height = 15
-  end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 786
+    Width = 864
     Height = 78
     Align = alTop
     TabOrder = 0
+    ExplicitLeft = 240
+    ExplicitTop = 40
+    ExplicitWidth = 786
     object Label1: TLabel
-      Left = 13
-      Top = 8
+      Left = 4
+      Top = 10
       Width = 80
       Height = 15
       Caption = 'Buscar por CEP'
     end
     object Label2: TLabel
-      Left = 10
+      Left = 1
       Top = 52
       Width = 108
       Height = 30
       Caption = 'Buscar por endere'#231'o'#13#10
     end
     object Label3: TLabel
-      Left = 128
+      Left = 111
       Top = 31
       Width = 35
       Height = 15
       Caption = 'Estado'
     end
     object Label4: TLabel
-      Left = 239
+      Left = 218
       Top = 31
       Width = 37
       Height = 15
       Caption = 'Cidade'
     end
     object Label5: TLabel
-      Left = 403
+      Left = 383
       Top = 31
       Width = 62
       Height = 15
       Caption = 'Logradouro'
     end
     object edtCep: TEdit
-      Left = 128
-      Top = 3
+      Left = 111
+      Top = 5
       Width = 121
       Height = 23
       NumbersOnly = True
       TabOrder = 0
     end
     object edtEstado: TEdit
-      Left = 128
+      Left = 111
       Top = 48
       Width = 105
       Height = 23
       MaxLength = 20
-      TabOrder = 2
+      TabOrder = 3
     end
     object btnConsultar: TButton
-      Left = 664
+      Left = 744
       Top = 3
-      Width = 112
+      Width = 114
       Height = 25
       Caption = 'Consultar CEP Json'
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnConsultarClick
     end
     object btnEndereco: TButton
-      Left = 664
+      Left = 744
       Top = 48
-      Width = 112
+      Width = 114
       Height = 25
-      Caption = 'Consultar Endere'#231'o'
-      TabOrder = 5
+      Caption = 'Endere'#231'o por Json'
+      TabOrder = 7
       OnClick = btnEnderecoClick
     end
     object edtCidade: TEdit
-      Left = 239
+      Left = 218
       Top = 48
       Width = 161
       Height = 23
-      TabOrder = 3
+      TabOrder = 4
     end
     object edtLogradouro: TEdit
-      Left = 403
+      Left = 383
       Top = 48
-      Width = 259
+      Width = 253
       Height = 23
-      TabOrder = 4
+      TabOrder = 5
       TextHint = 'Caso n'#227'o exista logradouro, informar "Centro"'
     end
+    object btnConsultarXML: TButton
+      Left = 638
+      Top = 3
+      Width = 103
+      Height = 25
+      Caption = 'Consultar por XML'
+      TabOrder = 1
+      OnClick = btnConsultarXMLClick
+    end
+    object btnEnderecoXml: TButton
+      Left = 638
+      Top = 48
+      Width = 103
+      Height = 25
+      Caption = 'Endere'#231'o por XML'
+      TabOrder = 6
+      OnClick = btnEnderecoXmlClick
+    end
+  end
+  object gridCep: TDBGrid
+    Left = 0
+    Top = 78
+    Width = 864
+    Height = 154
+    Align = alClient
+    DataSource = SCep
+    TabOrder = 1
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -12
+    TitleFont.Name = 'Segoe UI'
+    TitleFont.Style = []
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'cep'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'logradouro'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'complemento'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'bairro'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'localidade'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'uf'
+        Visible = True
+      end>
   end
   object TCEP: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -172,5 +232,26 @@ object FCeps: TFCeps
   object RESTResponse1: TRESTResponse
     Left = 632
     Top = 77
+  end
+  object IdHTTP1: TIdHTTP
+    ProxyParams.BasicAuthentication = False
+    ProxyParams.ProxyPort = 0
+    Request.ContentLength = -1
+    Request.ContentRangeEnd = -1
+    Request.ContentRangeStart = -1
+    Request.ContentRangeInstanceLength = -1
+    Request.Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    Request.BasicAuthentication = False
+    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    Request.Ranges.Units = 'bytes'
+    Request.Ranges = <>
+    HTTPOptions = [hoForceEncodeParams]
+    Left = 88
+    Top = 88
+  end
+  object SCep: TDataSource
+    DataSet = TCEP
+    Left = 48
+    Top = 144
   end
 end

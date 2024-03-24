@@ -11,7 +11,8 @@ uses
   FireDAC.DApt.Intf, REST.Types, Vcl.ExtCtrls, REST.Client, System.JSON,
   REST.Response.Adapter, Data.Bind.Components, Data.Bind.ObjectScope, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.Imaging.pngimage,
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, XMLIntf, XMLDoc,
+  Vcl.Grids, Vcl.DBGrids;
 
 type
   TFCeps = class(TForm)
@@ -29,7 +30,6 @@ type
     btnEndereco: TButton;
     edtCidade: TEdit;
     edtLogradouro: TEdit;
-    lblEndereco: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -39,17 +39,27 @@ type
     TCEPbairro: TStringField;
     TCEPlocalidade: TStringField;
     TCEPuf: TStringField;
+    btnConsultarXML: TButton;
+    IdHTTP1: TIdHTTP;
+    btnEnderecoXml: TButton;
+    gridCep: TDBGrid;
+    SCep: TDataSource;
     procedure btnConsultarClick(Sender: TObject);
     procedure btnEnderecoClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnConsultarXMLClick(Sender: TObject);
+    procedure btnEnderecoXmlClick(Sender: TObject);
   private
     DMGrava : TDMD_GravaDados;
     procedure EfetuarRequisicao(ARequisicao: String);
     procedure CarregarDados;
     procedure ConsultarCEP(ACep: string);
     procedure ConsultarEndereco(AEstado, ACidade, ALogradouro: String);
+    procedure ConsultarCEPViaXML(ACep: String);
+    procedure ConsultarEnderecoViaXML(AEstado, ACidade, ALogradouro: String);
+    procedure EfetuarRequisicaoXML(ARequisicao: String; ATipoRequisicao:String = 'CEP');
     { Private declarations }
   public
     { Public declarations }
@@ -100,6 +110,44 @@ begin
   ConsultarEndereco(TFuncoes.ConverterEstado(edtEstado.Text), edtCidade.Text, edtLogradouro.Text);
 end;
 
+procedure TFCeps.btnEnderecoXmlClick(Sender: TObject);
+begin
+  if not TFuncoes.ValidarCampo(edtEstado.Text) then
+  begin
+    ShowMessage('Estado inválido');
+    edtEstado.SetFocus;
+    Exit;
+  end;
+
+  if not TFuncoes.ValidarCampo(edtCidade.Text) then
+  begin
+    ShowMessage('Cidade inválida');
+    edtCidade.SetFocus;
+    Exit;
+  end;
+
+  if not TFuncoes.ValidarCampo(edtLogradouro.Text) then
+  begin
+    ShowMessage('Logradouro inválida');
+    edtLogradouro.SetFocus;
+    Exit;
+  end;
+
+  ConsultarEnderecoViaXML(TFuncoes.ConverterEstado(edtEstado.Text), edtCidade.Text, edtLogradouro.Text);
+end;
+
+procedure TFCeps.btnConsultarXMLClick(Sender: TObject);
+begin
+  if Length(edtCEP.Text) <> 8 then
+  begin
+    ShowMessage('CEP inválido');
+    edtCEP.SetFocus;
+    exit;
+  end;
+
+  ConsultarCEPViaXML(edtCEP.Text);
+end;
+
 procedure TFCeps.EfetuarRequisicao(ARequisicao: String);
 begin
 // aqui poderia fazer uma classe especifica para bater o json.response
@@ -125,13 +173,6 @@ try
         Exit
       end;
 
-      lblEndereco.Caption := 'CEP: ' + TCEP.FieldByName('cep').AsString + sLineBreak +
-                             'End: ' + TCEP.FieldByName('logradouro').AsString + sLineBreak +
-                             'Compl: ' + TCEP.FieldByName('complemento').AsString + sLineBreak +
-                             'Bairro: ' + TCEP.FieldByName('bairro').AsString + sLineBreak +
-                             'Cidade: ' + TCEP.FieldByName('localidade').AsString + sLineBreak +
-                             'UF: ' +TCEP. FieldByName('uf').AsString + sLineBreak;
-
       if DMGrava.LocalizarCep(TFuncoes.SomenteNumero(TCEP.FieldByName('cep').AsString)) then
         DMGrava.EditarCEP(TCEP)
       else
@@ -150,6 +191,7 @@ end;
 
 procedure TFCeps.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+TCEP.Close;
 FreeAndNil(DMGrava);
 end;
 
@@ -161,28 +203,31 @@ end;
 procedure TFCeps.FormShow(Sender: TObject);
 begin
 edtCep.SetFocus;
+TCEP.Close;
+TCEP.Open;
+CarregarDados;
 end;
 
 procedure TFCeps.CarregarDados;
 begin
-// carrega os dados e joga para a tabela de memoria(caso tivesse uma grid)
-TCEP.Close;
-TCEP.Open;
-TCEP.Append;
-TCEP.FieldByName('cep').AsString := DMGrava.QCep.FieldByName('cep').AsString;
-TCEP.FieldByName('logradouro').AsString := DMGrava.QCep.FieldByName('logradouro').AsString;
-TCEP.FieldByName('complemento').AsString := DMGrava.QCep.FieldByName('complemento').AsString;
-TCEP.FieldByName('bairro').AsString := DMGrava.QCep.FieldByName('bairro').AsString;
-TCEP.FieldByName('localidade').AsString := DMGrava.QCep.FieldByName('cidade').AsString;
-TCEP.FieldByName('uf').AsString := DMGrava.QCep.FieldByName('estado').AsString;
-TCEP.Post;
+// carrega os dados e joga para a tabela de memoria
+DMGrava.QTodosCep.Close;
+DMGrava.QTodosCep.Open;
 
-lblEndereco.Caption := 'CEP: ' + TCEP.FieldByName('cep').AsString + sLineBreak +
-                       'End: ' + TCEP.FieldByName('logradouro').AsString + sLineBreak +
-                       'Compl: ' + TCEP.FieldByName('complemento').AsString + sLineBreak +
-                       'Bairro: ' + TCEP.FieldByName('bairro').AsString + sLineBreak +
-                       'Cidade: ' + TCEP.FieldByName('localidade').AsString + sLineBreak +
-                       'UF: ' + TCEP.FieldByName('uf').AsString + sLineBreak;
+DMGrava.QTodosCep.First;
+while not DMGrava.QTodosCep.Eof do
+begin
+  TCEP.Append;
+  TCEP.FieldByName('cep').AsString := DMGrava.QTodosCep.FieldByName('cep').AsString;
+  TCEP.FieldByName('logradouro').AsString := DMGrava.QTodosCep.FieldByName('logradouro').AsString;
+  TCEP.FieldByName('complemento').AsString := DMGrava.QTodosCep.FieldByName('complemento').AsString;
+  TCEP.FieldByName('bairro').AsString := DMGrava.QTodosCep.FieldByName('bairro').AsString;
+  TCEP.FieldByName('localidade').AsString := DMGrava.QTodosCep.FieldByName('cidade').AsString;
+  TCEP.FieldByName('uf').AsString := DMGrava.QTodosCep.FieldByName('estado').AsString;
+  TCEP.Post;
+
+  DMGrava.QTodosCep.Next;
+end;
 end;
 
 procedure TFCeps.ConsultarCEP(ACep: string);
@@ -202,8 +247,6 @@ begin
   begin
     if MessageDlg('Endereço já cadastrado, deseja fazer uma nova consulta?', mtInformation, [mbYes, mbNo], 0) = 6 then
       EfetuarRequisicao(edtCEP.Text)
-    else
-      CarregarDados;
   end;
 end;
 
@@ -223,10 +266,107 @@ begin
       EfetuarRequisicao(lvRequisicao)
     end
     else
-    begin
       DMGrava.LocalizarCep(DMGrava.QEndereco.FieldByName('cep').AsString);
-      CarregarDados;
+  end;
+end;
+
+procedure TFCeps.ConsultarEnderecoViaXML(AEstado, ACidade, ALogradouro: String);
+var
+  lvRequisicao : String;
+begin
+// aqui efetua a consulta pelo endereco completo
+  lvRequisicao := AEstado + '/' + ACidade + '/' + ALogradouro;
+
+  if not DMGrava.LocalizarEndereco(Trim(ALogradouro), Trim(ACidade), Trim(AEstado)) then
+    EfetuarRequisicaoXML(lvRequisicao, 'ENDERECO')
+  else
+  begin
+    if MessageDlg('Endereço já cadastrado, deseja fazer uma nova consulta?', mtInformation, [mbYes, mbNo], 0) = 6 then
+    begin
+      EfetuarRequisicaoXML(lvRequisicao, 'ENDERECO')
+    end
+    else
+      DMGrava.LocalizarCep(DMGrava.QEndereco.FieldByName('cep').AsString);
+  end;
+end;
+
+procedure TFCeps.ConsultarCEPViaXML(ACep: String);
+begin
+if not DMGrava.LocalizarCep(TFuncoes.SomenteNumero(ACep)) then
+begin
+  EfetuarRequisicaoXML(TFuncoes.SomenteNumero(ACep));
+  DMGrava.InserirCEP(TCEP);
+end
+else
+begin
+  if MessageDlg('Endereço já cadastrado, deseja fazer uma nova consulta?', mtInformation, [mbYes, mbNo], 0) = 6 then
+  begin
+    EfetuarRequisicaoXML(TFuncoes.SomenteNumero(ACep))
+  end
+  else
+    DMGrava.LocalizarCep(DMGrava.QEndereco.FieldByName('cep').AsString);
+end;
+end;
+
+procedure TFCeps.EfetuarRequisicaoXML(ARequisicao: String; ATipoRequisicao:String = 'CEP');
+var
+  lvStream: TStringStream;
+  lvXMl: IXMLDocument;
+  lvNodeList: IXMLNodeList;
+  lvNode: IXMLNode;
+  i: Integer;
+begin
+  lvStream := TStringStream.Create;
+  lvXMl    := TXMLDocument.Create('');
+  try
+    try
+      idHTTP1.Get('http://viacep.com.br/ws/' + ARequisicao + '/xml', lvStream);
+
+      lvStream.SaveToFile('arquivo.xml');
+      lvXMl.LoadFromFile('arquivo.xml');
+
+//    monta diferente quando é por cep ou endereco, tem 2 nodos a mais
+      if ATipoRequisicao = 'CEP' then
+        lvNodeList := lvXMl.ChildNodes['xmlcep'].ChildNodes
+      else
+      begin
+        lvNodeList := lvXMl.ChildNodes['xmlcep'].ChildNodes;
+        lvNodeList := lvNodeList.FindNode('enderecos').ChildNodes;
+        lvNodeList := lvNodeList.FindNode('endereco').ChildNodes;
+      end;
+
+      if lvNodeList.Count <= 1 then
+      begin
+        ShowMessage('CEP não encontrado');
+        Exit;
+      end;
+
+      TCEP.Append;
+
+      for I := 0 to lvNodeList.Count - 1 do
+      begin
+        lvNode := lvNodeList.get(i);
+
+        if not Assigned(TCEP.FindField(lvNode.NodeName)) then
+          Continue;
+
+        if lvNode.NodeValue = Null then
+          Continue;
+
+        if lvNode.NodeName = 'cep' then
+          TCEP.FieldByName(lvNode.NodeName).AsString := TFuncoes.SomenteNumero(lvNode.NodeValue)
+        else
+          TCEP.FieldByName(lvNode.NodeName).AsString := lvNode.NodeValue;
+      end;
+      TCEP.Post;
+    except
+      on e:Exception do
+      begin
+        ShowMessage('Erro ao Consultar CEP.');
+      end;
     end;
+  finally
+    FreeAndNil(lvStream);
   end;
 end;
 

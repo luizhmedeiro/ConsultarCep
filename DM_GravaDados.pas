@@ -21,6 +21,7 @@ type
     QInsereCep: TFDQuery;
     Transacao: TFDTransaction;
     QEditarCep: TFDQuery;
+    QTodosCep: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
   private

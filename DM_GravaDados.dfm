@@ -1,8 +1,8 @@
 object DMD_GravaDados: TDMD_GravaDados
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
-  Height = 200
-  Width = 295
+  Height = 262
+  Width = 280
   object QEndereco: TFDQuery
     Connection = Conexao
     Transaction = Transacao
@@ -134,5 +134,12 @@ object DMD_GravaDados: TDMD_GravaDados
         Name = 'CEP'
         ParamType = ptInput
       end>
+  end
+  object QTodosCep: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'select * from cep')
+    Left = 40
+    Top = 160
   end
 end
