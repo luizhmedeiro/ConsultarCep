@@ -1,5 +1,7 @@
 Projeto para consultar o CEP e retonar via https://viacep.com.br
 
+Desenvolvido em delphi 12, utilizando FIREDAC como conexão com a base de dados firebird.
+
 configurações a serem feitas.
 
 Arquivo de conexão que fica junto com o EXE, configuracao.ini.
