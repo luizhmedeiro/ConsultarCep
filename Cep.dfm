@@ -51,14 +51,14 @@ object FCeps: TFCeps
       Caption = 'Estado'
     end
     object Label4: TLabel
-      Left = 174
+      Left = 239
       Top = 31
       Width = 37
       Height = 15
       Caption = 'Cidade'
     end
     object Label5: TLabel
-      Left = 338
+      Left = 403
       Top = 31
       Width = 62
       Height = 15
@@ -75,9 +75,9 @@ object FCeps: TFCeps
     object edtEstado: TEdit
       Left = 128
       Top = 48
-      Width = 42
+      Width = 105
       Height = 23
-      MaxLength = 2
+      MaxLength = 20
       TabOrder = 2
     end
     object btnConsultar: TButton
@@ -85,7 +85,7 @@ object FCeps: TFCeps
       Top = 3
       Width = 112
       Height = 25
-      Caption = 'Consultar CEP'
+      Caption = 'Consultar CEP Json'
       TabOrder = 1
       OnClick = btnConsultarClick
     end
@@ -99,21 +99,22 @@ object FCeps: TFCeps
       OnClick = btnEnderecoClick
     end
     object edtCidade: TEdit
-      Left = 174
+      Left = 239
       Top = 48
       Width = 161
       Height = 23
       TabOrder = 3
     end
     object edtLogradouro: TEdit
-      Left = 338
+      Left = 403
       Top = 48
-      Width = 316
+      Width = 259
       Height = 23
       TabOrder = 4
+      TextHint = 'Caso n'#227'o exista logradouro, informar "Centro"'
     end
   end
-  object MemTable: TFDMemTable
+  object TCEP: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -124,22 +125,22 @@ object FCeps: TFCeps
     UpdateOptions.CheckRequired = False
     Left = 40
     Top = 85
-    object MemTablecep: TStringField
+    object TCEPcep: TStringField
       FieldName = 'cep'
     end
-    object MemTablelogradouro: TStringField
+    object TCEPlogradouro: TStringField
       FieldName = 'logradouro'
     end
-    object MemTablecomplemento: TStringField
+    object TCEPcomplemento: TStringField
       FieldName = 'complemento'
     end
-    object MemTablebairro: TStringField
+    object TCEPbairro: TStringField
       FieldName = 'bairro'
     end
-    object MemTablelocalidade: TStringField
+    object TCEPlocalidade: TStringField
       FieldName = 'localidade'
     end
-    object MemTableuf: TStringField
+    object TCEPuf: TStringField
       FieldName = 'uf'
     end
   end
@@ -147,8 +148,8 @@ object FCeps: TFCeps
     BaseURL = 'http://viacep.com.br/ws'
     Params = <>
     SynchronizedEvents = False
-    Left = 160
-    Top = 101
+    Left = 544
+    Top = 85
   end
   object RESTRequest1: TRESTRequest
     AssignedValues = [rvConnectTimeout, rvReadTimeout]
@@ -161,7 +162,7 @@ object FCeps: TFCeps
     Top = 69
   end
   object RESTResponseDataSetAdapter1: TRESTResponseDataSetAdapter
-    Dataset = MemTable
+    Dataset = TCEP
     FieldDefs = <>
     Response = RESTResponse1
     TypesMode = Rich

@@ -10,8 +10,8 @@ object DMD_GravaDados: TDMD_GravaDados
       
         'select * from cep where cidade = :cidade and logradouro = :logra' +
         'douro and estado = :estado')
-    Left = 160
-    Top = 112
+    Left = 112
+    Top = 96
     ParamData = <
       item
         Name = 'CIDADE'
@@ -36,8 +36,8 @@ object DMD_GravaDados: TDMD_GravaDados
     Connection = Conexao
     SQL.Strings = (
       'select * from cep where cep = :cep')
-    Left = 80
-    Top = 112
+    Left = 40
+    Top = 104
     ParamData = <
       item
         Name = 'CEP'
@@ -93,5 +93,46 @@ object DMD_GravaDados: TDMD_GravaDados
     Connection = Conexao
     Left = 216
     Top = 40
+  end
+  object QEditarCep: TFDQuery
+    Connection = Conexao
+    Transaction = Transacao
+    SQL.Strings = (
+      'update '
+      'cep'
+      'set'
+      'logradouro = :logradouro, '
+      'cidade = :cidade, '
+      'estado = :estado,'
+      'complemento =  :complemento, '
+      'bairro = :bairro'
+      'where cep = :cep')
+    Left = 192
+    Top = 104
+    ParamData = <
+      item
+        Name = 'LOGRADOURO'
+        ParamType = ptInput
+      end
+      item
+        Name = 'CIDADE'
+        ParamType = ptInput
+      end
+      item
+        Name = 'ESTADO'
+        ParamType = ptInput
+      end
+      item
+        Name = 'COMPLEMENTO'
+        ParamType = ptInput
+      end
+      item
+        Name = 'BAIRRO'
+        ParamType = ptInput
+      end
+      item
+        Name = 'CEP'
+        ParamType = ptInput
+      end>
   end
 end

@@ -4,7 +4,6 @@ interface
 
 uses
   uFuncoes,
-  uFormat,
   vcl.Dialogs,
   Vcl.StdCtrls,
   System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
@@ -21,15 +20,17 @@ type
     Conexao: TFDConnection;
     QInsereCep: TFDQuery;
     Transacao: TFDTransaction;
+    QEditarCep: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
-    function LocalizaCep(ACep: String): Boolean;
-    function LocalizaEndereco(ALogradouro, ACidade, AEstado: String): Boolean;
+    function LocalizarCep(ACep: String): Boolean;
+    function LocalizarEndereco(ALogradouro, ACidade, AEstado: String): Boolean;
     function InserirCEP(ADataSet: TDataSet): boolean;
+    procedure EditarCep(ADataSet: TDataSet);
   end;
 
 var
@@ -61,6 +62,10 @@ end;
 
 procedure TDMD_GravaDados.DataModuleDestroy(Sender: TObject);
 begin
+QCep.Close;
+QInsereCep.Close;
+QEndereco.Close;
+QEditarCep.Close;
 Conexao.Connected := False;
 end;
 
@@ -68,13 +73,13 @@ function TDMD_GravaDados.InserirCEP(ADataSet: TDataSet): boolean;
 begin
 Result := False;
 
-if SomenteNumero(ADataSet.FieldByName('cep').AsString) = '' then
+if TFuncoes.SomenteNumero(ADataSet.FieldByName('cep').AsString) = '' then
   Exit;
 
 Transacao.StartTransaction;
 try
   QInsereCEP.Close;
-  QInsereCEP.ParamByName('cep'). AsString := SomenteNumero(ADataSet.FieldByName('cep').AsString);
+  QInsereCEP.ParamByName('cep'). AsString := TFuncoes.SomenteNumero(ADataSet.FieldByName('cep').AsString);
   QInsereCEP.ParamByName('logradouro'). AsString := UpperCase(ADataSet.FieldByName('logradouro').AsString);
   QInsereCEP.ParamByName('complemento'). AsString := UpperCase(ADataSet.FieldByName('complemento').AsString);
   QInsereCEP.ParamByName('bairro'). AsString := UpperCase(ADataSet.FieldByName('bairro').AsString);
@@ -93,7 +98,7 @@ except
 end;
 end;
 
-function TDMD_GravaDados.LocalizaCep(ACep: String): Boolean;
+function TDMD_GravaDados.LocalizarCep(ACep: String): Boolean;
 begin
 QCep.Close;
 QCep.ParamByName('cep').AsString := ACep;
@@ -101,7 +106,7 @@ QCep.Open;
 Result := not QCep.IsEmpty;
 end;
 
-function TDMD_GravaDados.LocalizaEndereco(ALogradouro, ACidade, AEstado: String): Boolean;
+function TDMD_GravaDados.LocalizarEndereco(ALogradouro, ACidade, AEstado: String): Boolean;
 begin
 QEndereco.Close;
 QEndereco.ParamByName('logradouro').AsString := UpperCase(ALogradouro);
@@ -109,6 +114,29 @@ QEndereco.ParamByName('cidade').AsString := UpperCase(ACidade);
 QEndereco.ParamByName('estado').AsString := UpperCase(AEstado);
 QEndereco.Open;
 Result := not QEndereco.IsEmpty;
+end;
+
+procedure  TDMD_GravaDados.EditarCep(ADataSet: TDataSet);
+begin
+Transacao.StartTransaction;
+try
+  QEditarCep.Close;
+  QEditarCep.ParamByName('cep'). AsString := TFuncoes.SomenteNumero(ADataSet.FieldByName('cep').AsString);
+  QEditarCep.ParamByName('logradouro'). AsString := UpperCase(ADataSet.FieldByName('logradouro').AsString);
+  QEditarCep.ParamByName('complemento'). AsString := UpperCase(ADataSet.FieldByName('complemento').AsString);
+  QEditarCep.ParamByName('bairro'). AsString := UpperCase(ADataSet.FieldByName('bairro').AsString);
+  QEditarCep.ParamByName('cidade'). AsString := UpperCase(ADataSet.FieldByName('localidade').AsString);
+  QEditarCep.ParamByName('estado'). AsString := UpperCase(ADataSet.FieldByName('uf').AsString);
+  QEditarCep.ExecSQL;
+  Transacao.Commit;
+except
+  on e:exception do
+  begin
+    Transacao.Rollback;
+    showmessage('Erro ao Inserir o cep: ' + ADataSet.FieldByName('cep').AsString + ' - ' + E.Message);
+    Abort;
+  end;
+end;
 end;
 
 end.

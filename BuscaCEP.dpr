@@ -4,8 +4,7 @@ uses
   Vcl.Forms,
   Cep in 'Cep.pas' {FCeps},
   DM_GravaDados in 'DM_GravaDados.pas' {DMD_GravaDados: TDataModule},
-  uFuncoes in 'uFuncoes.pas',
-  uFormat in 'uFormat.pas';
+  uFuncoes in 'uFuncoes.pas';
 
 {$R *.res}
 
