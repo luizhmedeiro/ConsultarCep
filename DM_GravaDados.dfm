@@ -8,8 +8,9 @@ object DMD_GravaDados: TDMD_GravaDados
     Transaction = Transacao
     SQL.Strings = (
       
-        'select * from cep where cidade = :cidade and logradouro = :logra' +
-        'douro and estado = :estado')
+        'select * from cep where cidade = :cidade and estado = :estado an' +
+        'd logradouro = :logradouro'
+      '')
     Left = 112
     Top = 96
     ParamData = <
@@ -20,16 +21,14 @@ object DMD_GravaDados: TDMD_GravaDados
         Size = 60
       end
       item
-        Name = 'LOGRADOURO'
-        DataType = ftString
-        ParamType = ptInput
-        Size = 100
-      end
-      item
         Name = 'ESTADO'
         DataType = ftString
         ParamType = ptInput
         Size = 2
+      end
+      item
+        Name = 'LOGRADOURO'
+        ParamType = ptInput
       end>
   end
   object QCep: TFDQuery

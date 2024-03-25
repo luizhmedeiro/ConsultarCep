@@ -44,6 +44,13 @@ type
     btnEnderecoXml: TButton;
     gridCep: TDBGrid;
     SCep: TDataSource;
+    MemTable: TFDMemTable;
+    MemTablecep: TStringField;
+    MemTablelogradouro: TStringField;
+    MemTablecomplemento: TStringField;
+    MemTablebairro: TStringField;
+    MemTablelocalidade: TStringField;
+    MemTableuf: TStringField;
     procedure btnConsultarClick(Sender: TObject);
     procedure btnEnderecoClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -167,16 +174,18 @@ try
     end
     else
     begin
-      if TCEP.FieldByName('cep').AsString = '' then
+      if MemTable.FieldByName('cep').AsString = '' then
       begin
         ShowMessage('Endereço não localizado');
         Exit
       end;
 
-      if DMGrava.LocalizarCep(TFuncoes.SomenteNumero(TCEP.FieldByName('cep').AsString)) then
-        DMGrava.EditarCEP(TCEP)
+      if DMGrava.LocalizarCep(TFuncoes.SomenteNumero(MemTable.FieldByName('cep').AsString)) then
+        DMGrava.EditarCEP(MemTable)
       else
-        DMGrava.InserirCEP(TCEP);
+        DMGrava.InserirCEP(MemTable);
+
+      CarregarDados;
     end;
   end
   else
@@ -203,8 +212,6 @@ end;
 procedure TFCeps.FormShow(Sender: TObject);
 begin
 edtCep.SetFocus;
-TCEP.Close;
-TCEP.Open;
 CarregarDados;
 end;
 
@@ -213,6 +220,9 @@ begin
 // carrega os dados e joga para a tabela de memoria
 DMGrava.QTodosCep.Close;
 DMGrava.QTodosCep.Open;
+
+TCEP.Close;
+TCEP.Open;
 
 DMGrava.QTodosCep.First;
 while not DMGrava.QTodosCep.Eof do
@@ -359,6 +369,15 @@ begin
           TCEP.FieldByName(lvNode.NodeName).AsString := lvNode.NodeValue;
       end;
       TCEP.Post;
+
+      if DMGrava.LocalizarCep(TFuncoes.SomenteNumero(TCEP.FieldByName('cep').AsString)) then
+      begin
+        DMGrava.EditarCEP(TCEP);
+        CarregarDados;
+      end
+      else
+        DMGrava.InserirCEP(TCEP);
+
     except
       on e:Exception do
       begin

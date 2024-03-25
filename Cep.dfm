@@ -146,26 +146,31 @@ object FCeps: TFCeps
       item
         Expanded = False
         FieldName = 'cep'
+        Width = 88
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'logradouro'
+        Width = 143
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'complemento'
+        Width = 166
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'bairro'
+        Width = 192
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'localidade'
+        Width = 229
         Visible = True
       end
       item
@@ -183,8 +188,8 @@ object FCeps: TFCeps
     UpdateOptions.LockWait = True
     UpdateOptions.FetchGeneratorsPoint = gpNone
     UpdateOptions.CheckRequired = False
-    Left = 40
-    Top = 85
+    Left = 96
+    Top = 165
     object TCEPcep: TStringField
       FieldName = 'cep'
     end
@@ -218,11 +223,11 @@ object FCeps: TFCeps
     Resource = '01001000/json/'
     Response = RESTResponse1
     SynchronizedEvents = False
-    Left = 728
-    Top = 69
+    Left = 760
+    Top = 173
   end
   object RESTResponseDataSetAdapter1: TRESTResponseDataSetAdapter
-    Dataset = TCEP
+    Dataset = MemTable
     FieldDefs = <>
     Response = RESTResponse1
     TypesMode = Rich
@@ -230,8 +235,8 @@ object FCeps: TFCeps
     Top = 133
   end
   object RESTResponse1: TRESTResponse
-    Left = 632
-    Top = 77
+    Left = 760
+    Top = 125
   end
   object IdHTTP1: TIdHTTP
     ProxyParams.BasicAuthentication = False
@@ -246,12 +251,41 @@ object FCeps: TFCeps
     Request.Ranges.Units = 'bytes'
     Request.Ranges = <>
     HTTPOptions = [hoForceEncodeParams]
-    Left = 88
-    Top = 88
+    Left = 304
+    Top = 176
   end
   object SCep: TDataSource
     DataSet = TCEP
     Left = 48
     Top = 144
+  end
+  object MemTable: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 208
+    Top = 160
+    object MemTablecep: TStringField
+      FieldName = 'cep'
+    end
+    object MemTablelogradouro: TStringField
+      FieldName = 'logradouro'
+    end
+    object MemTablecomplemento: TStringField
+      FieldName = 'complemento'
+    end
+    object MemTablebairro: TStringField
+      FieldName = 'bairro'
+    end
+    object MemTablelocalidade: TStringField
+      FieldName = 'localidade'
+    end
+    object MemTableuf: TStringField
+      FieldName = 'uf'
+    end
   end
 end
